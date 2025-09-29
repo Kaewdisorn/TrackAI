@@ -17,3 +17,15 @@ It demonstrates full-stack engineering and AI integration via FastAPI.
 - 🌐 **HAProxy** – Load balancing across backend services  
 - 🚀 **Varnish** – High-performance caching for static and API responses  
 - 🤖 **AI Service (FastAPI)** – Route prediction, anomaly detection, and smart recommendations  
+
+## ⚙️ Tech Stack
+
+- **Frontend**: Flutter Web (simulation & monitoring UIs)  
+- **Backend**: Dart Shelf (real-time APIs, WebSockets)  
+- **AI Service**: FastAPI (ML/AI processing)  
+- **Database**: PostgreSQL + PostGIS  
+- **Cache & Messaging**: Redis  
+- **Local Storage**: Hive (offline storage & preferences)  
+- **Load Balancing**: HAProxy  
+- **Caching Layer**: Varnish  
+- **Deployment**: Docker, Docker Swarm  
