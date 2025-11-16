@@ -57,7 +57,7 @@ class HomeState extends State<Home> {
                           Expanded(
                             flex: 9,
                             child: TextField(
-                              controller: startController,
+                              controller: endController,
                               decoration: InputDecoration(labelText: 'End Location', border: OutlineInputBorder()),
                             ),
                           ),
