@@ -15,7 +15,7 @@ class RouteMap extends StatefulWidget {
 }
 
 class RouteMapState extends State<RouteMap> {
-  late final MapController _mapController;
+  late final MapController mapController;
   LatLng? currentPosition;
   Timer? _timer;
   int _currentStep = 0;
@@ -27,14 +27,14 @@ class RouteMapState extends State<RouteMap> {
   @override
   void initState() {
     super.initState();
-    _mapController = MapController();
+    mapController = MapController();
     currentPosition = widget.start ?? LatLng(37.5665, 126.9780);
 
     // Center map
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final centerLat = (widget.start?.latitude ?? currentPosition?.latitude ?? 37.5665);
       final centerLng = (widget.start?.longitude ?? currentPosition?.longitude ?? 126.9780);
-      _mapController.move(LatLng(centerLat, centerLng), 15.0);
+      mapController.move(LatLng(centerLat, centerLng), 15.0);
     });
   }
 
@@ -120,7 +120,7 @@ class RouteMapState extends State<RouteMap> {
     return Stack(
       children: [
         FlutterMap(
-          mapController: _mapController,
+          mapController: mapController,
           options: MapOptions(initialCenter: currentPosition ?? LatLng(37.5665, 126.9780), initialZoom: currentZoom, minZoom: 3, maxZoom: 18),
           children: [
             TileLayer(urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", subdomains: const ['a', 'b', 'c']),
@@ -138,10 +138,10 @@ class RouteMapState extends State<RouteMap> {
           child: FloatingActionButton(
             heroTag: "moveToCurrent",
             mini: true,
-            backgroundColor: Colors.blue, // <- make button blue
+            backgroundColor: Colors.blue,
             onPressed: () {
               if (currentPosition != null) {
-                _mapController.move(currentPosition!, currentZoom);
+                mapController.move(currentPosition!, currentZoom);
               }
             },
             child: const Icon(Icons.my_location, color: Colors.white), // optional: white icon for contrast
