@@ -59,6 +59,15 @@ class HomeState extends State<Home> {
               ],
             ),
 
+            const SizedBox(height: 12),
+            // Vehicle ID Row
+            Row(
+              children: [
+                const Text("Vehicle ID :", style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                const Text("001", style: TextStyle(fontSize: 16)),
+              ],
+            ),
             const SizedBox(height: 16),
 
             // Map placeholder
