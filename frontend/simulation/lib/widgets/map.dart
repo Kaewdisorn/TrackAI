@@ -19,6 +19,7 @@ class RouteMapState extends State<RouteMap> {
   LatLng? currentPosition;
   Timer? _timer;
   int _currentStep = 0;
+  double currentZoom = 15.0;
 
   final double speedMetersPerSec = 5.0;
   final Distance distance = Distance();
@@ -27,7 +28,7 @@ class RouteMapState extends State<RouteMap> {
   void initState() {
     super.initState();
     _mapController = MapController();
-    currentPosition = widget.start ?? widget.destination;
+    currentPosition = widget.start ?? LatLng(37.5665, 126.9780);
 
     // Center map
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -83,7 +84,6 @@ class RouteMapState extends State<RouteMap> {
   Widget build(BuildContext context) {
     List<Marker> markers = [];
 
-    // Show start marker only if provided
     if (widget.start != null) {
       markers.add(
         Marker(
@@ -95,7 +95,6 @@ class RouteMapState extends State<RouteMap> {
       );
     }
 
-    // Show destination marker only if provided
     if (widget.destination != null) {
       markers.add(
         Marker(
@@ -107,7 +106,6 @@ class RouteMapState extends State<RouteMap> {
       );
     }
 
-    // Always show moving/current marker
     if (currentPosition != null) {
       markers.add(
         Marker(
@@ -119,19 +117,36 @@ class RouteMapState extends State<RouteMap> {
       );
     }
 
-    return FlutterMap(
-      mapController: _mapController,
-      options: MapOptions(initialCenter: currentPosition ?? LatLng(37.5665, 126.9780), initialZoom: 15.0, minZoom: 3, maxZoom: 18),
+    return Stack(
       children: [
-        TileLayer(urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", subdomains: const ['a', 'b', 'c']),
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(initialCenter: currentPosition ?? LatLng(37.5665, 126.9780), initialZoom: currentZoom, minZoom: 3, maxZoom: 18),
+          children: [
+            TileLayer(urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", subdomains: const ['a', 'b', 'c']),
+            if (widget.routePoints.isNotEmpty)
+              PolylineLayer(
+                polylines: [Polyline(points: widget.routePoints, color: Colors.blue, strokeWidth: 4)],
+              ),
+            MarkerLayer(markers: markers),
+          ],
+        ),
 
-        // Show polyline only if routePoints exist
-        if (widget.routePoints.isNotEmpty)
-          PolylineLayer(
-            polylines: [Polyline(points: widget.routePoints, color: Colors.blue, strokeWidth: 4)],
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: FloatingActionButton(
+            heroTag: "moveToCurrent",
+            mini: true,
+            backgroundColor: Colors.blue, // <- make button blue
+            onPressed: () {
+              if (currentPosition != null) {
+                _mapController.move(currentPosition!, currentZoom);
+              }
+            },
+            child: const Icon(Icons.my_location, color: Colors.white), // optional: white icon for contrast
           ),
-
-        MarkerLayer(markers: markers),
+        ),
       ],
     );
   }

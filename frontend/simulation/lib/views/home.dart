@@ -79,11 +79,7 @@ class HomeState extends State<Home> {
 
             // Map placeholder
             Expanded(
-              child: RouteMap(
-                start: startLatLng ?? LatLng(37.5665, 126.9780), // default center (Seoul)
-                destination: endLatLng ?? LatLng(37.5665, 126.9780),
-                routePoints: routePoints, // empty initially
-              ),
+              child: RouteMap(start: startLatLng, destination: endLatLng, routePoints: routePoints),
             ),
           ],
         ),
