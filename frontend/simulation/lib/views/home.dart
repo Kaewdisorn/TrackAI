@@ -16,15 +16,17 @@ class HomeState extends State<Home> {
   final TextEditingController startController = TextEditingController();
   final TextEditingController endController = TextEditingController();
 
-  LatLng? startLatLng;
-  LatLng? endLatLng;
-  List<LatLng> routePoints = [];
-
   @override
   void dispose() {
     startController.dispose();
     endController.dispose();
     super.dispose();
+  }
+
+  void onSetRoute() {
+    setState(() {
+      homeController.setRoute();
+    });
   }
 
   @override
@@ -44,7 +46,7 @@ class HomeState extends State<Home> {
                 const SizedBox(width: 8),
                 SizedBox(
                   width: 100,
-                  child: ElevatedButton(onPressed: () => debugPrint("Start: ${startController.text}"), child: const Text("Start")),
+                  child: ElevatedButton(onPressed: () => onSetRoute(), child: const Text("Start")),
                 ),
               ],
             ),
@@ -79,7 +81,7 @@ class HomeState extends State<Home> {
 
             // Map placeholder
             Expanded(
-              child: RouteMap(start: startLatLng, destination: endLatLng, routePoints: routePoints),
+              child: RouteMap(start: homeController.startLatLng, destination: homeController.endLatLng, routePoints: homeController.routePoints),
             ),
           ],
         ),
