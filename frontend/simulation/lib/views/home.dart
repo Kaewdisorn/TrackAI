@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import '../controllers/home.dart';
 import '../widgets/location_search_field.dart';
+import '../widgets/map.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -9,8 +12,13 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
+  final HomeController homeController = HomeController();
   final TextEditingController startController = TextEditingController();
   final TextEditingController endController = TextEditingController();
+
+  LatLng? startLatLng;
+  LatLng? endLatLng;
+  List<LatLng> routePoints = [];
 
   @override
   void dispose() {
@@ -21,8 +29,6 @@ class HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> sampleLocations = ['Seoul', 'Busan', 'Incheon', 'Daejeon', 'Daegu'];
-
     return Scaffold(
       appBar: AppBar(title: const Text("GPS Simulation Client")),
       body: Padding(
@@ -33,7 +39,7 @@ class HomeState extends State<Home> {
             Row(
               children: [
                 Expanded(
-                  child: LocationSearchField(controller: startController, labelText: 'Start Location', options: sampleLocations),
+                  child: LocationSearchField(controller: startController, labelText: 'Start Location', options: homeController.sampleLocations),
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
@@ -49,7 +55,7 @@ class HomeState extends State<Home> {
             Row(
               children: [
                 Expanded(
-                  child: LocationSearchField(controller: endController, labelText: 'End Location', options: sampleLocations),
+                  child: LocationSearchField(controller: endController, labelText: 'End Location', options: homeController.sampleLocations),
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
@@ -68,13 +74,15 @@ class HomeState extends State<Home> {
                 const Text("001", style: TextStyle(fontSize: 16)),
               ],
             ),
+
             const SizedBox(height: 16),
 
             // Map placeholder
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10)),
-                child: const Center(child: Text("Map Placeholder")),
+              child: RouteMap(
+                start: startLatLng ?? LatLng(37.5665, 126.9780), // default center (Seoul)
+                destination: endLatLng ?? LatLng(37.5665, 126.9780),
+                routePoints: routePoints, // empty initially
               ),
             ),
           ],
