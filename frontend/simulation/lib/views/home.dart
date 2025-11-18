@@ -46,7 +46,7 @@ class HomeState extends State<Home> {
                 const SizedBox(width: 8),
                 SizedBox(
                   width: 100,
-                  child: ElevatedButton(onPressed: () => onSetRoute(), child: const Text("Start")),
+                  child: ElevatedButton(onPressed: () => onSetRoute(), child: const Text("Set Route")),
                 ),
               ],
             ),
