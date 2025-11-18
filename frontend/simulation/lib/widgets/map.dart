@@ -36,13 +36,7 @@ class RouteMapState extends State<RouteMap> {
     });
 
     widget.routePointsNotifier.addListener(() {
-      final routePoints = widget.routePointsNotifier.value;
-      if (routePoints.isNotEmpty) {
-        setState(() {
-          currentPosition = routePoints.first;
-        });
-        startSimulation(routePoints);
-      }
+      setState(() {});
     });
   }
 

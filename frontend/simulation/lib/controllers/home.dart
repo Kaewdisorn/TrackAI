@@ -24,6 +24,7 @@ class HomeController {
     startLatLng = null;
     endLatLng = null;
     routePoints = [];
+    routePointsNotifier.value = routePoints;
   }
 
   List<LatLng> generateRoute(LatLng start, LatLng end, {int segments = 20}) {
