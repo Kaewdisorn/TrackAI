@@ -12,13 +12,11 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final HomeController homeController = HomeController();
-  final TextEditingController startController = TextEditingController();
-  final TextEditingController endController = TextEditingController();
 
   @override
   void dispose() {
-    startController.dispose();
-    endController.dispose();
+    homeController.startController.dispose();
+    homeController.endController.dispose();
     super.dispose();
   }
 
@@ -40,7 +38,7 @@ class HomeState extends State<Home> {
             Row(
               children: [
                 Expanded(
-                  child: LocationSearchField(controller: startController, labelText: 'Start Location', options: homeController.sampleLocations),
+                  child: LocationSearchField(controller: homeController.startController, labelText: 'Start Location', options: homeController.sampleLocations),
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
@@ -56,12 +54,19 @@ class HomeState extends State<Home> {
             Row(
               children: [
                 Expanded(
-                  child: LocationSearchField(controller: endController, labelText: 'End Location', options: homeController.sampleLocations),
+                  child: LocationSearchField(controller: homeController.endController, labelText: 'End Location', options: homeController.sampleLocations),
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
                   width: 120,
-                  child: ElevatedButton(onPressed: () => debugPrint("End: ${endController.text}"), child: const Text("End")),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        homeController.clearRoute();
+                      });
+                    },
+                    child: const Text("Clear"),
+                  ),
                 ),
               ],
             ),

@@ -27,6 +27,13 @@ class LocationSearchField extends StatelessWidget {
           controller.text = textEditingController.text;
         });
 
+        controller.addListener(() {
+          // to avoid unnecessary rebuilds, only update if different
+          if (controller.text != textEditingController.text) {
+            textEditingController.text = controller.text;
+          }
+        });
+
         return TextField(
           controller: textEditingController, // <-- use internal controller
           focusNode: focusNode,
