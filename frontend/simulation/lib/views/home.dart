@@ -12,12 +12,12 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final HomeController homeController = HomeController();
-  final GlobalKey<RouteMapState> mapKey = GlobalKey<RouteMapState>();
 
   @override
   void dispose() {
     homeController.startController.dispose();
     homeController.endController.dispose();
+    homeController.routePointsNotifier.dispose();
     super.dispose();
   }
 
@@ -86,19 +86,52 @@ class HomeState extends State<Home> {
                 const SizedBox(width: 8),
                 const Text("001", style: TextStyle(fontSize: 16)),
                 const SizedBox(width: 8),
-                SizedBox(
-                  width: 170,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-                    onPressed: () {
-                      if (mapKey.currentState != null) {
-                        mapKey.currentState!.startSimulation(homeController.routePointsNotifier.value);
-                      }
-                    },
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text("Start Simulation"),
-                  ),
+                ValueListenableBuilder<SimulationState>(
+                  valueListenable: homeController.simulationState,
+                  builder: (context, state, _) {
+                    switch (state) {
+                      case SimulationState.initial:
+                        return ElevatedButton.icon(
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text("Start Simulation"),
+                          onPressed: homeController.routePointsNotifier.value.isNotEmpty ? homeController.startSimulation : null,
+                        );
+
+                      case SimulationState.running:
+                        return Row(
+                          children: [
+                            ElevatedButton.icon(icon: const Icon(Icons.pause), label: const Text("Pause"), onPressed: homeController.pauseSimulation),
+                            const SizedBox(width: 8),
+                            ElevatedButton.icon(icon: const Icon(Icons.stop), label: const Text("Reset"), onPressed: () {}),
+                          ],
+                        );
+
+                      case SimulationState.paused:
+                        return Row(
+                          children: [
+                            ElevatedButton.icon(icon: const Icon(Icons.play_arrow), label: const Text("Resume"), onPressed: homeController.resumeSimulation),
+                            const SizedBox(width: 8),
+                            ElevatedButton.icon(icon: const Icon(Icons.stop), label: const Text("Reset"), onPressed: () {}),
+                          ],
+                        );
+                    }
+                  },
                 ),
+                // SizedBox(
+                //   width: 170,
+                //   child: ElevatedButton.icon(
+                //     style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                //     onPressed: homeController.routePointsNotifier.value.isNotEmpty
+                //         ? () {
+                //             if (homeController.mapKey.currentState != null) {
+                //               homeController.mapKey.currentState!.startSimulation(homeController.routePointsNotifier.value);
+                //             }
+                //           }
+                //         : null,
+                //     icon: const Icon(Icons.play_arrow),
+                //     label: const Text("Start Simulation"),
+                //   ),
+                // ),
               ],
             ),
             const SizedBox(height: 16),
@@ -106,7 +139,7 @@ class HomeState extends State<Home> {
             // Map placeholder
             Expanded(
               child: RouteMap(
-                key: mapKey,
+                key: homeController.mapKey,
                 start: homeController.startLatLng,
                 destination: homeController.endLatLng,
                 routePointsNotifier: homeController.routePointsNotifier,
