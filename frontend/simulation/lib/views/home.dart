@@ -43,7 +43,11 @@ class HomeState extends State<Home> {
                 const SizedBox(width: 8),
                 SizedBox(
                   width: 120,
-                  child: ElevatedButton(onPressed: () => onSetRoute(), child: const Text("Set Route")),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+                    onPressed: () => onSetRoute(),
+                    child: const Text("Set Route"),
+                  ),
                 ),
               ],
             ),
@@ -60,6 +64,7 @@ class HomeState extends State<Home> {
                 SizedBox(
                   width: 120,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
                     onPressed: () {
                       setState(() {
                         homeController.clearRoute();
@@ -80,8 +85,13 @@ class HomeState extends State<Home> {
                 const Text("001", style: TextStyle(fontSize: 16)),
                 const SizedBox(width: 8),
                 SizedBox(
-                  width: 180,
-                  child: ElevatedButton.icon(onPressed: () => {}, icon: const Icon(Icons.play_arrow), label: const Text("Start Simulation")),
+                  width: 170,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+                    onPressed: () => {},
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Text("Start Simulation"),
+                  ),
                 ),
               ],
             ),
