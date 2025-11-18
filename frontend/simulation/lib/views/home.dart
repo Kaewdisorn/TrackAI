@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 import '../controllers/home.dart';
 import '../widgets/location_search_field.dart';
 import '../widgets/map.dart';
@@ -45,7 +44,7 @@ class HomeState extends State<Home> {
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
-                  width: 100,
+                  width: 120,
                   child: ElevatedButton(onPressed: () => onSetRoute(), child: const Text("Set Route")),
                 ),
               ],
@@ -61,7 +60,7 @@ class HomeState extends State<Home> {
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
-                  width: 100,
+                  width: 120,
                   child: ElevatedButton(onPressed: () => debugPrint("End: ${endController.text}"), child: const Text("End")),
                 ),
               ],
@@ -74,6 +73,11 @@ class HomeState extends State<Home> {
                 const Text("Vehicle ID :", style: TextStyle(fontSize: 16)),
                 const SizedBox(width: 8),
                 const Text("001", style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 180,
+                  child: ElevatedButton.icon(onPressed: () => {}, icon: const Icon(Icons.play_arrow), label: const Text("Start Simulation")),
+                ),
               ],
             ),
 
