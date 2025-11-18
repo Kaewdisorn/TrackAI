@@ -22,14 +22,15 @@ class RouteMapState extends State<RouteMap> {
   double currentZoom = 15.0;
   final double speedMetersPerSec = 5.0;
 
-  bool isPaused = false; // pause flag
+  bool isPaused = false;
   final Distance distance = Distance();
+  final initLatLng = LatLng(37.5665, 126.9780); // Default to Seoul
 
   @override
   void initState() {
     super.initState();
     mapController = MapController();
-    currentPosition = widget.start ?? LatLng(37.5665, 126.9780);
+    currentPosition = widget.start ?? initLatLng;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       mapController.move(currentPosition!, currentZoom);
@@ -79,6 +80,20 @@ class RouteMapState extends State<RouteMap> {
 
   void resumeSimulation() {
     setState(() => isPaused = false);
+  }
+
+  void resetSimulation() {
+    _timer?.cancel(); // stop movement
+    _currentStep = 0; // reset step counter
+    isPaused = false; // clear pause flag
+
+    // Reset current position to start point or default
+    setState(() {
+      currentPosition = widget.start ?? initLatLng;
+    });
+
+    // Move map to start position
+    mapController.move(currentPosition!, currentZoom);
   }
 
   @override
