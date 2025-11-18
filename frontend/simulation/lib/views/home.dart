@@ -12,6 +12,7 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final HomeController homeController = HomeController();
+  final GlobalKey<RouteMapState> mapKey = GlobalKey<RouteMapState>();
 
   @override
   void dispose() {
@@ -77,30 +78,34 @@ class HomeState extends State<Home> {
             ),
 
             const SizedBox(height: 12),
-            // Vehicle ID Row
-            Row(
-              children: [
-                const Text("Vehicle ID :", style: TextStyle(fontSize: 16)),
-                const SizedBox(width: 8),
-                const Text("001", style: TextStyle(fontSize: 16)),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 170,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-                    onPressed: () => {},
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text("Start Simulation"),
-                  ),
-                ),
-              ],
-            ),
 
+            // Vehicle ID Row
+            // Row(
+            //   children: [
+            //     const Text("Vehicle ID :", style: TextStyle(fontSize: 16)),
+            //     const SizedBox(width: 8),
+            //     const Text("001", style: TextStyle(fontSize: 16)),
+            //     const SizedBox(width: 8),
+            //     SizedBox(
+            //       width: 170,
+            //       child: ElevatedButton.icon(
+            //         style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+            //         onPressed: () {},
+            //         icon: const Icon(Icons.play_arrow),
+            //         label: const Text("Start Simulation"),
+            //       ),
+            //     ),
+            //   ],
+            // ),
             const SizedBox(height: 16),
 
             // Map placeholder
             Expanded(
-              child: RouteMap(start: homeController.startLatLng, destination: homeController.endLatLng, routePoints: homeController.routePoints),
+              child: RouteMap(
+                start: homeController.startLatLng,
+                destination: homeController.endLatLng,
+                routePointsNotifier: homeController.routePointsNotifier,
+              ),
             ),
           ],
         ),

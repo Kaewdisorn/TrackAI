@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 class HomeController {
   final TextEditingController startController = TextEditingController();
   final TextEditingController endController = TextEditingController();
+  final ValueNotifier<List<LatLng>> routePointsNotifier = ValueNotifier([]);
 
   final List<String> sampleLocations = ['Seoul', 'Busan', 'Incheon', 'Daejeon', 'Daegu'];
   LatLng? startLatLng;
@@ -14,6 +15,7 @@ class HomeController {
     startLatLng = LatLng(37.5665, 126.9780); // Seoul
     endLatLng = LatLng(35.1796, 129.0756); // Busan
     routePoints = generateRoute(startLatLng!, endLatLng!);
+    routePointsNotifier.value = routePoints;
   }
 
   void clearRoute() {

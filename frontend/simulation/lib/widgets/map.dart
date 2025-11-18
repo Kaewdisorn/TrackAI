@@ -6,9 +6,9 @@ import 'package:latlong2/latlong.dart';
 class RouteMap extends StatefulWidget {
   final LatLng? start;
   final LatLng? destination;
-  final List<LatLng> routePoints;
+  final ValueNotifier<List<LatLng>> routePointsNotifier;
 
-  const RouteMap({super.key, this.start, this.destination, this.routePoints = const []});
+  const RouteMap({super.key, this.start, this.destination, required this.routePointsNotifier});
 
   @override
   RouteMapState createState() => RouteMapState();
@@ -20,8 +20,9 @@ class RouteMapState extends State<RouteMap> {
   Timer? _timer;
   int _currentStep = 0;
   double currentZoom = 15.0;
-
   final double speedMetersPerSec = 5.0;
+
+  bool isPaused = false; // pause flag
   final Distance distance = Distance();
 
   @override
@@ -30,48 +31,60 @@ class RouteMapState extends State<RouteMap> {
     mapController = MapController();
     currentPosition = widget.start ?? LatLng(37.5665, 126.9780);
 
-    // Center map
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final centerLat = (widget.start?.latitude ?? currentPosition?.latitude ?? 37.5665);
-      final centerLng = (widget.start?.longitude ?? currentPosition?.longitude ?? 126.9780);
-      mapController.move(LatLng(centerLat, centerLng), 15.0);
+      mapController.move(currentPosition!, currentZoom);
+    });
+
+    widget.routePointsNotifier.addListener(() {
+      final routePoints = widget.routePointsNotifier.value;
+      if (routePoints.isNotEmpty) {
+        setState(() {
+          currentPosition = routePoints.first;
+        });
+        startSimulation(routePoints);
+      }
     });
   }
 
-  void startSimulation() {
-    if (widget.routePoints.isEmpty) return;
-
+  void startSimulation(List<LatLng> routePoints) {
     _currentStep = 0;
-    Duration interval = const Duration(milliseconds: 50);
+    _timer?.cancel();
+    const interval = Duration(milliseconds: 100);
 
     _timer = Timer.periodic(interval, (_) {
-      if (_currentStep >= widget.routePoints.length - 1) {
+      if (isPaused) return; // skip movement if paused
+
+      if (_currentStep >= routePoints.length - 1) {
         _timer?.cancel();
         return;
       }
 
-      LatLng from = widget.routePoints[_currentStep];
-      LatLng to = widget.routePoints[_currentStep + 1];
+      final from = routePoints[_currentStep];
+      final to = routePoints[_currentStep + 1];
 
-      double segmentDistance = distance.as(LengthUnit.Meter, from, to);
-      int steps = (segmentDistance / (speedMetersPerSec * interval.inSeconds)).ceil();
-
-      double latStep = (to.latitude - from.latitude) / steps;
-      double lngStep = (to.longitude - from.longitude) / steps;
-
-      int stepCounter = 0;
-      Timer.periodic(interval, (t) {
-        if (stepCounter >= steps) {
-          t.cancel();
-          _currentStep++;
-        } else {
-          setState(() {
-            currentPosition = LatLng(from.latitude + latStep * stepCounter, from.longitude + lngStep * stepCounter);
-          });
-          stepCounter++;
-        }
+      const double fractionPerStep = 0.02;
+      setState(() {
+        currentPosition = LatLng(
+          currentPosition!.latitude + (to.latitude - from.latitude) * fractionPerStep,
+          currentPosition!.longitude + (to.longitude - from.longitude) * fractionPerStep,
+        );
       });
+
+      // Check if we reached "to" point
+      if ((currentPosition!.latitude - from.latitude).abs() >= (to.latitude - from.latitude).abs() &&
+          (currentPosition!.longitude - from.longitude).abs() >= (to.longitude - from.longitude).abs()) {
+        currentPosition = to;
+        _currentStep++;
+      }
     });
+  }
+
+  void pauseSimulation() {
+    setState(() => isPaused = true);
+  }
+
+  void resumeSimulation() {
+    setState(() => isPaused = false);
   }
 
   @override
@@ -82,8 +95,9 @@ class RouteMapState extends State<RouteMap> {
 
   @override
   Widget build(BuildContext context) {
-    List<Marker> markers = [];
+    final routePoints = widget.routePointsNotifier.value;
 
+    List<Marker> markers = [];
     if (widget.start != null) {
       markers.add(
         Marker(
@@ -94,7 +108,6 @@ class RouteMapState extends State<RouteMap> {
         ),
       );
     }
-
     if (widget.destination != null) {
       markers.add(
         Marker(
@@ -105,7 +118,6 @@ class RouteMapState extends State<RouteMap> {
         ),
       );
     }
-
     if (currentPosition != null) {
       markers.add(
         Marker(
@@ -124,27 +136,46 @@ class RouteMapState extends State<RouteMap> {
           options: MapOptions(initialCenter: currentPosition ?? LatLng(37.5665, 126.9780), initialZoom: currentZoom, minZoom: 3, maxZoom: 18),
           children: [
             TileLayer(urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", subdomains: const ['a', 'b', 'c']),
-            if (widget.routePoints.isNotEmpty)
+            if (routePoints.isNotEmpty)
               PolylineLayer(
-                polylines: [Polyline(points: widget.routePoints, color: Colors.blue, strokeWidth: 4)],
+                polylines: [Polyline(points: routePoints, color: Colors.blue, strokeWidth: 4)],
               ),
             MarkerLayer(markers: markers),
           ],
         ),
-
         Positioned(
           right: 16,
           bottom: 16,
-          child: FloatingActionButton(
-            heroTag: "moveToCurrent",
-            mini: true,
-            backgroundColor: Colors.blue,
-            onPressed: () {
-              if (currentPosition != null) {
-                mapController.move(currentPosition!, currentZoom);
-              }
-            },
-            child: const Icon(Icons.my_location, color: Colors.white), // optional: white icon for contrast
+          child: Column(
+            children: [
+              FloatingActionButton(
+                heroTag: "moveToCurrent",
+                mini: true,
+                backgroundColor: Colors.blue,
+                onPressed: () {
+                  if (currentPosition != null) {
+                    mapController.move(currentPosition!, currentZoom);
+                  }
+                },
+                child: const Icon(Icons.my_location, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton(
+                heroTag: "pauseSimulation",
+                mini: true,
+                backgroundColor: Colors.orange,
+                onPressed: pauseSimulation,
+                child: const Icon(Icons.pause, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton(
+                heroTag: "resumeSimulation",
+                mini: true,
+                backgroundColor: Colors.green,
+                onPressed: resumeSimulation,
+                child: const Icon(Icons.play_arrow, color: Colors.white),
+              ),
+            ],
           ),
         ),
       ],
