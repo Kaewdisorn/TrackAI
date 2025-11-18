@@ -15,7 +15,6 @@ class HomeController {
   final List<String> sampleLocations = ['Seoul', 'Busan', 'Incheon', 'Daejeon', 'Daegu'];
   LatLng? startLatLng;
   LatLng? endLatLng;
-  List<LatLng> routePoints = [];
 
   void startSimulation() {
     if (mapKey.currentState != null && routePointsNotifier.value.isNotEmpty) {
@@ -38,20 +37,31 @@ class HomeController {
     }
   }
 
+  void resetSimulation() {
+    routePointsNotifier.value = [];
+    startLatLng = null;
+    endLatLng = null;
+    startController.clear();
+    endController.clear();
+    mapKey.currentState?.resetSimulation();
+    simulationState.value = SimulationState.initial;
+  }
+
   void setRoute() {
+    // Example: static start and end points
     startLatLng = LatLng(37.5665, 126.9780); // Seoul
     endLatLng = LatLng(35.1796, 129.0756); // Busan
-    routePoints = generateRoute(startLatLng!, endLatLng!);
-    routePointsNotifier.value = routePoints;
+    final newRoute = generateRoute(startLatLng!, endLatLng!);
+
+    // Update notifier for UI & map
+    routePointsNotifier.value = newRoute;
+    simulationState.value = SimulationState.initial;
   }
 
   void clearRoute() {
     startController.clear();
     endController.clear();
-    startLatLng = null;
-    endLatLng = null;
-    routePoints = [];
-    routePointsNotifier.value = routePoints;
+    routePointsNotifier.value = [];
   }
 
   List<LatLng> generateRoute(LatLng start, LatLng end, {int segments = 20}) {

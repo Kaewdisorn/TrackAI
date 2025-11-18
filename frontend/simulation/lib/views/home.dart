@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import '../controllers/home.dart';
 import '../widgets/location_search_field.dart';
 import '../widgets/map.dart';
@@ -21,12 +22,6 @@ class HomeState extends State<Home> {
     super.dispose();
   }
 
-  void onSetRoute() {
-    setState(() {
-      homeController.setRoute();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,13 +37,21 @@ class HomeState extends State<Home> {
                   child: LocationSearchField(controller: homeController.startController, labelText: 'Start Location', options: homeController.sampleLocations),
                 ),
                 const SizedBox(width: 8),
-                SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-                    onPressed: () => onSetRoute(),
-                    child: const Text("Set Route"),
-                  ),
+                ValueListenableBuilder<SimulationState>(
+                  valueListenable: homeController.simulationState,
+                  builder: (context, state, _) {
+                    return SizedBox(
+                      width: 130,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: state == SimulationState.initial ? Colors.blue : Colors.grey,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: state == SimulationState.initial ? homeController.setRoute : null,
+                        child: const Text("Set Route"),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -62,17 +65,21 @@ class HomeState extends State<Home> {
                   child: LocationSearchField(controller: homeController.endController, labelText: 'End Location', options: homeController.sampleLocations),
                 ),
                 const SizedBox(width: 8),
-                SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-                    onPressed: () {
-                      setState(() {
-                        homeController.clearRoute();
-                      });
-                    },
-                    child: const Text("Clear"),
-                  ),
+                ValueListenableBuilder<SimulationState>(
+                  valueListenable: homeController.simulationState,
+                  builder: (context, state, _) {
+                    return SizedBox(
+                      width: 130,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: state == SimulationState.initial ? Colors.blue : Colors.grey,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: state == SimulationState.initial ? homeController.clearRoute : null,
+                        child: const Text("Clear Route"),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -86,52 +93,46 @@ class HomeState extends State<Home> {
                 const SizedBox(width: 8),
                 const Text("001", style: TextStyle(fontSize: 16)),
                 const SizedBox(width: 8),
-                ValueListenableBuilder<SimulationState>(
-                  valueListenable: homeController.simulationState,
-                  builder: (context, state, _) {
-                    switch (state) {
-                      case SimulationState.initial:
-                        return ElevatedButton.icon(
-                          icon: const Icon(Icons.play_arrow),
-                          label: const Text("Start Simulation"),
-                          onPressed: homeController.routePointsNotifier.value.isNotEmpty ? homeController.startSimulation : null,
-                        );
+                ValueListenableBuilder<List<LatLng>>(
+                  valueListenable: homeController.routePointsNotifier,
+                  builder: (context, routePoints, _) {
+                    return ValueListenableBuilder<SimulationState>(
+                      valueListenable: homeController.simulationState,
+                      builder: (context, state, _) {
+                        switch (state) {
+                          case SimulationState.initial:
+                            return ElevatedButton.icon(
+                              icon: const Icon(Icons.play_arrow),
+                              label: const Text("Start Simulation"),
+                              onPressed: routePoints.isNotEmpty ? homeController.startSimulation : null,
+                            );
 
-                      case SimulationState.running:
-                        return Row(
-                          children: [
-                            ElevatedButton.icon(icon: const Icon(Icons.pause), label: const Text("Pause"), onPressed: homeController.pauseSimulation),
-                            const SizedBox(width: 8),
-                            ElevatedButton.icon(icon: const Icon(Icons.stop), label: const Text("Reset"), onPressed: () {}),
-                          ],
-                        );
+                          case SimulationState.running:
+                            return Row(
+                              children: [
+                                ElevatedButton.icon(icon: const Icon(Icons.pause), label: const Text("Pause"), onPressed: homeController.pauseSimulation),
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(icon: const Icon(Icons.stop), label: const Text("Reset"), onPressed: homeController.resetSimulation),
+                              ],
+                            );
 
-                      case SimulationState.paused:
-                        return Row(
-                          children: [
-                            ElevatedButton.icon(icon: const Icon(Icons.play_arrow), label: const Text("Resume"), onPressed: homeController.resumeSimulation),
-                            const SizedBox(width: 8),
-                            ElevatedButton.icon(icon: const Icon(Icons.stop), label: const Text("Reset"), onPressed: () {}),
-                          ],
-                        );
-                    }
+                          case SimulationState.paused:
+                            return Row(
+                              children: [
+                                ElevatedButton.icon(
+                                  icon: const Icon(Icons.play_arrow),
+                                  label: const Text("Resume"),
+                                  onPressed: homeController.resumeSimulation,
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(icon: const Icon(Icons.stop), label: const Text("Reset"), onPressed: homeController.resetSimulation),
+                              ],
+                            );
+                        }
+                      },
+                    );
                   },
                 ),
-                // SizedBox(
-                //   width: 170,
-                //   child: ElevatedButton.icon(
-                //     style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                //     onPressed: homeController.routePointsNotifier.value.isNotEmpty
-                //         ? () {
-                //             if (homeController.mapKey.currentState != null) {
-                //               homeController.mapKey.currentState!.startSimulation(homeController.routePointsNotifier.value);
-                //             }
-                //           }
-                //         : null,
-                //     icon: const Icon(Icons.play_arrow),
-                //     label: const Text("Start Simulation"),
-                //   ),
-                // ),
               ],
             ),
             const SizedBox(height: 16),
