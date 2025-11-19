@@ -38,6 +38,7 @@ class RouteMapState extends State<RouteMap> {
 
     widget.routePointsNotifier.addListener(() {
       setState(() {});
+      zoomToRoute(widget.routePointsNotifier.value);
     });
   }
 
@@ -94,6 +95,44 @@ class RouteMapState extends State<RouteMap> {
 
     // Move map to start position
     mapController.move(currentPosition!, currentZoom);
+  }
+
+  void zoomToRoute(List<LatLng> points) {
+    if (points.isEmpty) return;
+
+    double? minLat, maxLat, minLng, maxLng;
+
+    for (var p in points) {
+      minLat = (minLat == null) ? p.latitude : (p.latitude < minLat ? p.latitude : minLat);
+      maxLat = (maxLat == null) ? p.latitude : (p.latitude > maxLat ? p.latitude : maxLat);
+      minLng = (minLng == null) ? p.longitude : (p.longitude < minLng ? p.longitude : minLng);
+      maxLng = (maxLng == null) ? p.longitude : (p.longitude > maxLng ? p.longitude : maxLng);
+    }
+
+    final center = LatLng((minLat! + maxLat!) / 2, (minLng! + maxLng!) / 2);
+
+    // Simple zoom calculation based on span
+    final latDiff = (maxLat - minLat).abs();
+    final lngDiff = (maxLng - minLng).abs();
+    final maxDiff = latDiff > lngDiff ? latDiff : lngDiff;
+
+    double zoom;
+    if (maxDiff < 0.005) {
+      zoom = 18;
+    } else if (maxDiff < 0.01) {
+      zoom = 16;
+    } else if (maxDiff < 0.05) {
+      zoom = 14;
+    } else if (maxDiff < 0.1) {
+      zoom = 12;
+    } else if (maxDiff < 0.5) {
+      zoom = 10;
+    } else {
+      zoom = 8;
+    }
+
+    currentZoom = zoom;
+    mapController.move(center, currentZoom);
   }
 
   @override
