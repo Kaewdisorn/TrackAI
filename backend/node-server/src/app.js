@@ -25,7 +25,7 @@ app.use('/api', routes);
 // --------------------
 // Serve Flutter Web static files
 // --------------------
-const flutterBuildPath = path.join(__dirname, '../../../frontend/simulation/build/web');
+const flutterBuildPath = path.join(__dirname, '../flutter-build/simulation/web');
 app.use(express.static(flutterBuildPath));
 
 // SPA fallback for non-API routes
