@@ -1,0 +1,7 @@
+﻿# Node server
+backend/node-server/node_modules
+
+# Flutter simulation
+frontend/simulation/build 
+frontend/simulation/pubspec.lock
+frontend/simulation/.dart_tool/
