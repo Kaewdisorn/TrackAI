@@ -9,6 +9,21 @@
       "cwd": "${workspaceFolder}/frontend/simulation",
       "flutterMode": "debug",
       "deviceId": "chrome"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Node server (dev)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "cwd": "${workspaceFolder}/backend/node-server",
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "envFile": "${workspaceFolder}/backend/node-server/.env"
     }
   ]
 }
