@@ -6,12 +6,14 @@ class LocationSearchController {
   final TextEditingController textController;
   final ValueNotifier<List<String>> suggestions = ValueNotifier([]);
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
+  bool _suppressListener = false;
 
   LocationSearchController({required this.textController}) {
     textController.addListener(_onTextChanged);
   }
 
   void _onTextChanged() {
+    if (_suppressListener) return; // 🔹 prevent loop
     fetchSuggestions(textController.text);
   }
 
@@ -37,8 +39,10 @@ class LocationSearchController {
   }
 
   void selectSuggestion(String suggestion) {
+    _suppressListener = true; // 🔹 suppress listener
     textController.text = suggestion;
     suggestions.value = [];
+    _suppressListener = false; // 🔹 restore listener
   }
 
   void dispose() {

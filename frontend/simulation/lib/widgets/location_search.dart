@@ -8,10 +8,10 @@ class LocationSearch extends StatefulWidget {
   const LocationSearch({super.key, required this.textfieldController, required this.labelText});
 
   @override
-  _LocationSearchState createState() => _LocationSearchState();
+  LocationSearchState createState() => LocationSearchState();
 }
 
-class _LocationSearchState extends State<LocationSearch> {
+class LocationSearchState extends State<LocationSearch> {
   @override
   Widget build(BuildContext context) {
     return Column(
