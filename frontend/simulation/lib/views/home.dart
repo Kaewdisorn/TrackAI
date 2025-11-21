@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import '../controllers/home.dart';
-import '../controllers/location_search.dart';
 import '../widgets/location_search.dart';
 import '../widgets/map.dart';
 
