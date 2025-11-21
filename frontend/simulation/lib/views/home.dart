@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import '../controllers/home.dart';
-import '../widgets/location_search_field.dart';
+import '../controllers/location_search.dart';
+import '../widgets/location_search.dart';
 import '../widgets/map.dart';
 
 class Home extends StatefulWidget {
@@ -13,6 +14,7 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final HomeController homeController = HomeController();
+  final locationSearchController = LocationSearchController();
 
   @override
   void dispose() {
@@ -34,7 +36,7 @@ class HomeState extends State<Home> {
             Row(
               children: [
                 Expanded(
-                  child: LocationSearchField(controller: homeController.startController, labelText: 'Start Location', options: homeController.sampleLocations),
+                  child: LocationSearch(controller: homeController.startController, labelText: "Start Location", searchController: locationSearchController),
                 ),
                 const SizedBox(width: 8),
                 ValueListenableBuilder<SimulationState>(
@@ -62,7 +64,7 @@ class HomeState extends State<Home> {
             Row(
               children: [
                 Expanded(
-                  child: LocationSearchField(controller: homeController.endController, labelText: 'End Location', options: homeController.sampleLocations),
+                  child: LocationSearch(controller: homeController.endController, labelText: "End Location", searchController: locationSearchController),
                 ),
                 const SizedBox(width: 8),
                 ValueListenableBuilder<SimulationState>(
