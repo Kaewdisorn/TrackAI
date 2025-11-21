@@ -14,7 +14,6 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final HomeController homeController = HomeController();
-  final locationSearchController = LocationSearchController();
 
   @override
   void dispose() {
@@ -36,7 +35,7 @@ class HomeState extends State<Home> {
             Row(
               children: [
                 Expanded(
-                  child: LocationSearch(controller: homeController.startController, labelText: "Start Location", searchController: locationSearchController),
+                  child: LocationSearch(textfieldController: homeController.startController, labelText: "Start Location"),
                 ),
                 const SizedBox(width: 8),
                 ValueListenableBuilder<SimulationState>(
@@ -64,7 +63,7 @@ class HomeState extends State<Home> {
             Row(
               children: [
                 Expanded(
-                  child: LocationSearch(controller: homeController.endController, labelText: "End Location", searchController: locationSearchController),
+                  child: LocationSearch(textfieldController: homeController.endController, labelText: "End Location"),
                 ),
                 const SizedBox(width: 8),
                 ValueListenableBuilder<SimulationState>(

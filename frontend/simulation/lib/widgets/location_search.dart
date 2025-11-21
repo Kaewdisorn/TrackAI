@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import '../controllers/location_search.dart';
 
 class LocationSearch extends StatefulWidget {
-  final TextEditingController controller;
+  final TextEditingController textfieldController;
   final String labelText;
-  final LocationSearchController searchController;
 
-  const LocationSearch({super.key, required this.controller, required this.labelText, required this.searchController});
+  const LocationSearch({super.key, required this.textfieldController, required this.labelText});
 
   @override
   State<LocationSearch> createState() => _LocationSearchState();
@@ -14,12 +13,13 @@ class LocationSearch extends StatefulWidget {
 
 class _LocationSearchState extends State<LocationSearch> {
   final ValueNotifier<List<String>> _results = ValueNotifier([]);
+  final locationSearchController = LocationSearchController();
 
   @override
   Widget build(BuildContext context) {
     return Autocomplete<String>(
       optionsBuilder: (value) {
-        widget.searchController.search(value.text, (list) {
+        locationSearchController.search(value.text, (list) {
           _results.value = list;
         });
 
@@ -53,12 +53,12 @@ class _LocationSearchState extends State<LocationSearch> {
       },
 
       onSelected: (selection) {
-        widget.controller.text = selection;
+        widget.textfieldController.text = selection;
       },
 
       fieldViewBuilder: (context, textController, focusNode, _) {
         textController.addListener(() {
-          widget.controller.text = textController.text;
+          widget.textfieldController.text = textController.text;
         });
 
         return TextField(
