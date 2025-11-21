@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
+
+import '../models/location_search.dart';
 
 class LocationSearchController {
   final TextEditingController textController;
-  final ValueNotifier<List<String>> suggestions = ValueNotifier([]);
+  final ValueNotifier<List<LocationSearchModel>> suggestions = ValueNotifier([]);
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
+
+  Timer? _debounce;
   bool _suppressListener = false;
 
   LocationSearchController({required this.textController}) {
@@ -13,8 +18,12 @@ class LocationSearchController {
   }
 
   void _onTextChanged() {
-    if (_suppressListener) return; // 🔹 prevent loop
-    fetchSuggestions(textController.text);
+    if (_suppressListener) return;
+
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      fetchSuggestions(textController.text);
+    });
   }
 
   Future<void> fetchSuggestions(String query) async {
@@ -30,7 +39,9 @@ class LocationSearchController {
       final response = await http.get(Uri.parse(url), headers: {'User-Agent': 'Flutter App'});
       final data = json.decode(response.body) as List;
 
-      suggestions.value = data.map((e) => e['display_name'] as String).toList();
+      if (query == textController.text) {
+        suggestions.value = data.map((e) => LocationSearchModel.fromJson(e as Map<String, dynamic>)).toList();
+      }
     } catch (_) {
       suggestions.value = [];
     } finally {
@@ -38,16 +49,20 @@ class LocationSearchController {
     }
   }
 
-  void selectSuggestion(String suggestion) {
-    _suppressListener = true; // 🔹 suppress listener
-    textController.text = suggestion;
+  void selectSuggestion(LocationSearchModel suggestion) {
+    _suppressListener = true;
+    textController.text = suggestion.displayName;
     suggestions.value = [];
-    _suppressListener = false; // 🔹 restore listener
+    _suppressListener = false;
+
+    // Optional: update map coordinates
+    // mapController.updatePosition(LatLng(suggestion.lat, suggestion.lon));
   }
 
   void dispose() {
     textController.dispose();
     suggestions.dispose();
     isLoading.dispose();
+    _debounce?.cancel();
   }
 }

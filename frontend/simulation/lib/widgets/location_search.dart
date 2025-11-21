@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/location_search.dart';
+import '../models/location_search.dart';
 
 class LocationSearch extends StatefulWidget {
   final LocationSearchController textfieldController;
@@ -25,7 +26,7 @@ class LocationSearchState extends State<LocationSearch> {
             );
           },
         ),
-        ValueListenableBuilder<List<String>>(
+        ValueListenableBuilder<List<LocationSearchModel>>(
           valueListenable: widget.textfieldController.suggestions,
           builder: (context, suggestions, _) {
             if (suggestions.isEmpty) return const SizedBox.shrink();
@@ -39,7 +40,7 @@ class LocationSearchState extends State<LocationSearch> {
                 itemCount: suggestions.length,
                 itemBuilder: (context, index) {
                   final suggestion = suggestions[index];
-                  return ListTile(title: Text(suggestion), onTap: () => widget.textfieldController.selectSuggestion(suggestion));
+                  return ListTile(title: Text(suggestion.displayName), onTap: () => widget.textfieldController.selectSuggestion(suggestion));
                 },
               ),
             );
