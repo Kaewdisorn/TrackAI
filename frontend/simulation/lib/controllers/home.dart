@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../widgets/map.dart';
+import 'location_search.dart';
 
 enum SimulationState { initial, running, paused }
 
 class HomeController {
-  final TextEditingController startController = TextEditingController();
-  final TextEditingController endController = TextEditingController();
+  final startController = LocationSearchController(textController: TextEditingController());
+  final endController = LocationSearchController(textController: TextEditingController());
   final ValueNotifier<List<LatLng>> routePointsNotifier = ValueNotifier([]);
   final GlobalKey<RouteMapState> mapKey = GlobalKey<RouteMapState>();
   final simulationState = ValueNotifier<SimulationState>(SimulationState.initial);
@@ -41,8 +42,8 @@ class HomeController {
     routePointsNotifier.value = [];
     startLatLng = null;
     endLatLng = null;
-    startController.clear();
-    endController.clear();
+    startController.textController.clear();
+    endController.textController.clear();
     mapKey.currentState?.resetSimulation();
     simulationState.value = SimulationState.initial;
   }
@@ -59,8 +60,8 @@ class HomeController {
   }
 
   void clearRoute() {
-    startController.clear();
-    endController.clear();
+    startController.textController.clear();
+    endController.textController.clear();
     routePointsNotifier.value = [];
   }
 

@@ -1,28 +1,49 @@
-import 'dart:async';
-import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LocationSearchController {
-  Timer? _debounce;
+  final TextEditingController textController;
+  final ValueNotifier<List<String>> suggestions = ValueNotifier([]);
+  final ValueNotifier<bool> isLoading = ValueNotifier(false);
 
-  void search(String query, Function(List<String>) onResult) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+  LocationSearchController({required this.textController}) {
+    textController.addListener(_onTextChanged);
+  }
 
-    _debounce = Timer(const Duration(milliseconds: 400), () async {
-      if (query.isEmpty) {
-        onResult([]);
-        return;
-      }
+  void _onTextChanged() {
+    fetchSuggestions(textController.text);
+  }
 
-      final url = Uri.parse('https://nominatim.openstreetmap.org/search?q=$query&format=json&limit=5');
+  Future<void> fetchSuggestions(String query) async {
+    if (query.isEmpty) {
+      suggestions.value = [];
+      return;
+    }
 
-      final response = await http.get(url, headers: {'User-Agent': 'FlutterApp/1.0 (email@example.com)'});
+    isLoading.value = true;
 
-      if (response.statusCode == 200) {
-        final list = jsonDecode(response.body) as List;
-        final results = list.map((e) => e['display_name'] as String).toList();
-        onResult(results);
-      }
-    });
+    try {
+      final url = 'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&addressdetails=1&limit=5&accept-language=ko';
+      final response = await http.get(Uri.parse(url), headers: {'User-Agent': 'Flutter App'});
+      final data = json.decode(response.body) as List;
+
+      suggestions.value = data.map((e) => e['display_name'] as String).toList();
+    } catch (_) {
+      suggestions.value = [];
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void selectSuggestion(String suggestion) {
+    textController.text = suggestion;
+    suggestions.value = [];
+  }
+
+  void dispose() {
+    textController.dispose();
+    suggestions.dispose();
+    isLoading.dispose();
   }
 }
